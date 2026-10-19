@@ -1,77 +1,83 @@
+# Build the documentation, and publish it from main.
+#
+# ⛔ No Python. What this replaced was MkDocs Material plus mike: a
+# requirements.txt, a pip install and a Python setup step, to render a static
+# site for an organisation whose whole argument is that it needs no runtime but
+# Go. Hugo is one binary, and the theme is a Go module.
+#
+# ⛔ AND IT PUBLISHES DIFFERENTLY, which is the part worth knowing. mike
+# committed a built site to the gh-pages branch under a version name and kept
+# `dev`, `latest` and every tag side by side behind a switcher. This uploads a
+# Pages ARTIFACT instead, so there is one published site and no version
+# switcher. That is the trade go-pdfkit/docs made when it moved first, and it
+# needs the repository's Pages source set to GitHub Actions (build_type
+# "workflow"); left on "legacy" the build succeeds and publishes nothing.
 name: docs
 
 on:
   push:
     branches: [main]
-    tags: ["v*"]
+  # On a pull request too, so a change that breaks the build is caught before
+  # it lands rather than by the published site going stale.
   pull_request:
+  workflow_dispatch:
 
-# The build needs nothing beyond the source it checks out. Write access to the
-# repository is granted to the deploy job alone, below, so a pull request build
-# cannot push to gh-pages even if a step in it misbehaves. Before this split,
-# build and deploy shared ONE job gated only at the step level, which meant the
-# pull request build really did run holding `contents: write`.
 permissions:
   contents: read
+  pages: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Runs on every pull request as well as on main, so a change to the docs or to
-  # requirements.txt has to prove the site still builds before it lands.
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
+          # The theme reads the last-modified date of each page from git, so a
+          # shallow clone would date every page to the checkout.
           fetch-depth: 0
-      - uses: actions/setup-python@v7
+
+      - uses: actions/setup-go@v7
         with:
-          python-version: "3.x"
-      - run: pip install -r requirements.txt
-      # --strict turns a broken link or an unknown config key into a failure
-      # rather than a warning nobody reads.
-      - run: mkdocs build --strict
+          # Pinned: Hugo modules are Go modules, and the resolver is the one in
+          # this toolchain.
+          go-version: '1.27.2'
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.168.0'
+          extended: true
+
+      - uses: actions/configure-pages@v6
+        id: pages
+
+      - name: Build
+        run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      - name: Say which theme built it
+        # The theme is a FORK reached through a replace directive. Printing the
+        # resolved module means a build that silently fell back to upstream is
+        # visible in the log rather than in the rendering.
+        run: hugo mod graph
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
 
   deploy:
-    # Only a push publishes; a pull request stops after the build above. This is
-    # the same condition that used to sit on the "Configure git" step, lifted to
-    # the job, so WHAT publishes and WHEN is unchanged -- only the token the
-    # pull request build holds is.
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-    # `mike deploy --push` pushes gh-pages, and two of them at once make the
-    # second fail outright with "! [rejected] gh-pages -> gh-pages (fetch
-    # first)". Pushing main and a tag together triggers exactly two runs here.
-    # cancel-in-progress stays FALSE deliberately: making a publish wait is
-    # better than killing one half way through.
-    concurrency:
-      group: gh-pages-deploy
-      cancel-in-progress: false
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.x"
-      - run: pip install -r requirements.txt
-      # No artifact crosses from the build job on purpose: `mike deploy` runs
-      # `mkdocs build` itself and commits ITS OWN output to gh-pages, so the
-      # site/ the build job produced was already thrown away before this split.
-      # The build job is the gate; this job publishes, exactly as it did when
-      # both lived in one job. The site is therefore built twice on a push, and
-      # that is the price of publishing byte-for-byte the same thing as before.
-      - name: Configure git
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Deploy dev (push to main)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
-        run: mike deploy --push --update-aliases dev latest
-      - name: Deploy release (tag)
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          mike deploy --push --update-aliases "${GITHUB_REF_NAME}" latest
-          mike set-default --push latest
+      - id: deployment
+        uses: actions/deploy-pages@v5
