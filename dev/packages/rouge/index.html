@@ -444,6 +444,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Languages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -508,6 +530,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Languages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -541,6 +585,136 @@
 <div class="highlight"><pre><span></span><code>go<span class="w"> </span>get<span class="w"> </span>github.com/go-rouge/rouge
 </code></pre></div>
 <p>Requires Go 1.26.4 or newer. <code>CGO_ENABLED=0</code>.</p>
+<h2 id="use">Use</h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="s">"github.com/go-rouge/rouge"</span>
+
+<span class="nx">html</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rouge</span><span class="p">.</span><span class="nx">Highlight</span><span class="p">(</span><span class="s">`puts "hello"`</span><span class="p">,</span><span class="w"> </span><span class="s">"ruby"</span><span class="p">,</span><span class="w"> </span><span class="s">"html"</span><span class="p">)</span>
+<span class="c1">// =&gt; &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"hello"&lt;/span&gt;</span>
+
+<span class="nx">lex</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rouge</span><span class="p">.</span><span class="nx">FindLexer</span><span class="p">(</span><span class="s">"rb"</span><span class="p">)</span><span class="w">        </span><span class="c1">// by tag or alias, case-insensitive</span>
+<span class="nx">lex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">rouge</span><span class="p">.</span><span class="nx">Guess</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span><span class="w">              </span><span class="c1">// content sniff; never nil (PlainText fallback)</span>
+<span class="nx">toks</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">lex</span><span class="p">.</span><span class="nx">Lex</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span><span class="w">                </span><span class="c1">// []TokenValue{Token, Value}</span>
+<span class="nx">page</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rouge</span><span class="p">.</span><span class="nx">WrapHTML</span><span class="p">(</span><span class="nx">rouge</span><span class="p">.</span><span class="nx">HTMLFormatter</span><span class="p">{}.</span><span class="nx">Format</span><span class="p">(</span><span class="nx">toks</span><span class="p">))</span>
+</code></pre></div>
+<p>The CSS short-codes are the gem's own (<code>k</code>, <code>s</code>, <code>c</code>, <code>nf</code>, …), so any
+stylesheet written for Ruby <code>rouge</code> — or for Pygments — styles this output
+unchanged.</p>
+<h2 id="languages">Languages</h2>
+<p>23 lexers. Each is a transcription of the reference <code>rouge</code> 5.0.0 gem's own
+lexer source, and each is validated <strong>byte-for-byte</strong> against HTML produced by
+that gem: every corpus file in <code>testdata/</code> is highlighted by both and the
+output compared exactly.</p>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C</td>
+<td><code>c</code></td>
+</tr>
+<tr>
+<td>C++</td>
+<td><code>cpp</code>, <code>c++</code></td>
+</tr>
+<tr>
+<td>COBOL</td>
+<td><code>cobol</code></td>
+</tr>
+<tr>
+<td>CSS</td>
+<td><code>css</code></td>
+</tr>
+<tr>
+<td>diff</td>
+<td><code>diff</code>, <code>patch</code>, <code>udiff</code></td>
+</tr>
+<tr>
+<td>Fortran</td>
+<td><code>fortran</code></td>
+</tr>
+<tr>
+<td>Go</td>
+<td><code>go</code>, <code>golang</code></td>
+</tr>
+<tr>
+<td>Hashicorp Configuration Language</td>
+<td><code>hcl</code></td>
+</tr>
+<tr>
+<td>HTML</td>
+<td><code>html</code></td>
+</tr>
+<tr>
+<td>Java</td>
+<td><code>java</code></td>
+</tr>
+<tr>
+<td>JavaScript</td>
+<td><code>javascript</code>, <code>js</code></td>
+</tr>
+<tr>
+<td>JSON</td>
+<td><code>json</code></td>
+</tr>
+<tr>
+<td>Markdown</td>
+<td><code>markdown</code>, <code>md</code>, <code>mkd</code></td>
+</tr>
+<tr>
+<td>PHP</td>
+<td><code>php</code>, <code>php3</code>, <code>php4</code>, <code>php5</code></td>
+</tr>
+<tr>
+<td>Plain Text</td>
+<td><code>plaintext</code>, <code>text</code></td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>python</code>, <code>py</code></td>
+</tr>
+<tr>
+<td>Ruby</td>
+<td><code>ruby</code>, <code>rb</code></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code>rust</code>, <code>rs</code> (+ the six rust-skeptic aliases)</td>
+</tr>
+<tr>
+<td>shell</td>
+<td><code>shell</code>, <code>bash</code>, <code>zsh</code>, <code>ksh</code>, <code>sh</code></td>
+</tr>
+<tr>
+<td>SQL</td>
+<td><code>sql</code></td>
+</tr>
+<tr>
+<td>Terraform</td>
+<td><code>terraform</code>, <code>tf</code></td>
+</tr>
+<tr>
+<td>TeX</td>
+<td><code>latex</code>, <code>tex</code>, <code>TeX</code>, <code>LaTeX</code></td>
+</tr>
+<tr>
+<td>YAML</td>
+<td><code>yaml</code>, <code>yml</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Where a lexer is not byte-identical, the module says so</p>
+<p>The README carries a <strong>documented simplifications</strong> section listing every
+deviation from the gem and the measurement behind it — for example that
+the gem's <code>^</code> and lookbehind assertions do not constrain where it evaluates
+them, so three rules drop them; and that HCL's here-document rule is not
+transcribed because the gem's own rule ordering makes it unreachable.
+Nothing is left to be discovered by surprise.</p>
+</div>
 <h2 id="links">Links</h2>
 <ul>
 <li>Source: <a href="https://github.com/go-rouge/rouge">https://github.com/go-rouge/rouge</a></li>
