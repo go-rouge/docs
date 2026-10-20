@@ -1,3 +1,8 @@
+---
+title: "rouge"
+weight: 10
+---
+
 # rouge
 
 Rouge/Pygments-class lexers that tokenize source and emit highlighted HTML.
@@ -61,18 +66,22 @@ output compared exactly.
 | TeX | `latex`, `tex`, `TeX`, `LaTeX` |
 | YAML | `yaml`, `yml` |
 
-!!! note "Where a lexer is not byte-identical, the module says so"
-    The README carries a **documented simplifications** section listing every
-    deviation from the gem and the measurement behind it — for example that
-    the gem's `^` and lookbehind assertions do not constrain where it evaluates
-    them, so three rules drop them; and that HCL's here-document rule is not
-    transcribed because the gem's own rule ordering makes it unreachable.
-    Nothing is left to be discovered by surprise.
+{{< callout type="info" >}}
+**Where a lexer is not byte-identical, the module says so**
+
+The README carries a **documented simplifications** section listing every
+deviation from the gem and the measurement behind it — for example that the
+gem's `^` and lookbehind assertions do not constrain where it evaluates them,
+so three rules drop them; and that HCL's here-document rule is not transcribed
+because the gem's own rule ordering makes it unreachable. Nothing is left to be
+discovered by surprise.
+{{< /callout >}}
 
 ## Links
 
 - Source: <https://github.com/go-rouge/rouge>
 - API reference: <https://pkg.go.dev/github.com/go-rouge/rouge>
 
-!!! note
-    See the module's README for full, up-to-date details.
+{{< callout >}}
+See the module's README for full, up-to-date details.
+{{< /callout >}}

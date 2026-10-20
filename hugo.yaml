@@ -1,0 +1,104 @@
+# go-rouge docs — Hugo + Hextra, built like go-asmgen/docs and go-plot/docs.
+#
+# Each documentation version is a separate build under
+# https://go-rouge.github.io/docs/<version>/, where <version> is the minor
+# version of the code the pages describe, or "main" while the pages track the
+# library's main branch. The CI sets it through --baseURL, from
+# params.docs.version below; this default is the same build.
+#
+# ⛔ What this replaced was MkDocs Material plus mike, which needed a Python
+# toolchain, a requirements.txt and a pip install in CI to render a static site
+# for an organisation whose whole argument is that it needs no runtime but Go.
+baseURL: "https://go-rouge.github.io/docs/main/"
+title: "go-rouge docs"
+# ⛔ No languageCode: deprecated in Hugo 0.158 in favour of locale, and the
+# languages block below already says which language this is. Copying an older
+# Hextra site in this fleet is how a converted site arrives with that
+# deprecation, and --panicOnWarning turns it into a failed build.
+
+# themes/hextra is the tannevaled/hextra fork, pinned at a release tag as a
+# SUBMODULE -- not a Hugo module. The fork keeps upstream's module path, so
+# importing it as a module builds upstream unless a replace is in play; a
+# submodule says which theme is in the tree and cannot silently resolve to
+# another one. Every other docs site in the fleet does it this way.
+theme: hextra
+
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: false
+
+languages:
+  en:
+    label: "English"
+    contentDir: content/en
+    weight: 1
+
+enableRobotsTXT: true
+# Git history dates every page: "Last updated on" at the foot of each one.
+enableGitInfo: true
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+    parser:
+      attribute:
+        title: true
+        # Block attributes, so a heading can carry an explicit id. The fleet's
+        # converted sites need it to keep the anchors MkDocs minted, because
+        # the two slug rules disagree; this site's headings are plain, but the
+        # setting stays so a page moved here from a converted site keeps
+        # working.
+        block: true
+  highlight:
+    noClasses: false
+
+# ⛔ The content is NOT under content/en/docs. This site is served AT /docs/,
+# so a "docs" section would make every page /docs/docs/… . Hextra picks its
+# documentation layout from the section being called "docs", so with the
+# content at the root the type is cascaded instead.
+# ⛔ "target", not "_target": the underscored spelling was deprecated in Hugo
+# 0.156 and the fleet's older Hextra sites still carry it, so copying one of
+# them is how a converted site arrives with a deprecation.
+cascade:
+  - target:
+      path: "/**"
+    params:
+      type: docs
+
+params:
+  docs:
+    version: "main"
+  description: "Pure-Go syntax highlighting: Rouge/Pygments-class lexers that tokenize source and emit highlighted HTML, with no cgo and no Ruby."
+  navbar:
+    displayTitle: true
+    displayLogo: true
+    logo:
+      path: images/logo.svg
+      width: 24
+      height: 24
+  theme:
+    default: system
+    displayToggle: true
+  footer:
+    enable: true
+    displayCopyright: false
+    displayPoweredBy: false
+  page:
+    width: normal
+  editURL:
+    enable: true
+    base: "https://github.com/go-rouge/docs/edit/main/content/en"
+
+menu:
+  main:
+    - name: Organisation
+      url: https://github.com/go-rouge
+      weight: 2
+    - name: Search
+      weight: 3
+      params:
+        type: search
+    - weight: 4
+      url: https://github.com/go-rouge
+      params:
+        icon: github
