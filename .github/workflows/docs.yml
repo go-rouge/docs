@@ -139,7 +139,7 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.27.2'
+          go-version: '1.27.3'
 
       # ⛔ THE VERSION GOES AT THE BRANCH ROOT. Writing docs/<version>/ would
       # land the site at /docs/docs/<version>/, because a project repository
