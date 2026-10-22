@@ -27,7 +27,7 @@ behind it rather than leaving it to be discovered.
 ## Packages
 
 {{< cards >}}
-  {{< card link="packages/rouge/" title="rouge" subtitle="Rouge/Pygments-class lexers that tokenize source and emit highlighted HTML — 23 languages." >}}
+  {{< card link="packages/rouge/" title="rouge" subtitle="Rouge/Pygments-class lexers that tokenize source and emit highlighted HTML — 31 languages." >}}
 {{< /cards >}}
 
 Everything here is **pure Go** (`CGO_ENABLED=0`), standard-library-first, and
