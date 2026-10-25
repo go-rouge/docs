@@ -102,27 +102,35 @@ A lexer is a parser fed untrusted input, so the module treats it as one.
   the one that holds whatever the input: lexing **accounts for every byte** —
   none dropped, which would delete source from a rendered page, and none
   invented, which would be an injection.
-- **Lexing is linear in the input for 28 of the 31 lexers**, including against
-  inputs built to defeat the lazy quantifiers the gem's rules use: unterminated
+- **Lexing is linear in the input** — all 31 lexers, including against inputs
+  built to defeat the lazy quantifiers the gem's rules use: unterminated
   comments, strings, tags, macros and template literals. Measured at 1k/2k/4k
   bytes, where linear is 2x per doubling and 4x is quadratic.
 - **Coverage is 100%**, with zero uncovered blocks rather than a rounded total.
 
-{{< callout type="warning" >}}
-**C, C++ and Java are quadratic on an unterminated block comment**
+{{< callout type="info" >}}
+**It was not always linear, and the history is on the record**
 
-32 KiB of `/*` with no closing `*/` takes about 26 seconds
-([#17](https://github.com/go-rouge/rouge/issues/17)). The C-family
-function-signature rule scans forward for a `{` or `;` that never arrives, and
-the lexer retries it at every scan position — O(n) attempts of O(n) work. The
-rule is transcribed from the gem, so the behaviour is inherited rather than
-introduced, but it is a denial of service on exactly the untrusted input this
-library exists to highlight. **Do not highlight untrusted C, C++ or Java
-without a size limit or a timeout** until that issue is closed.
+Until **v0.7.1**, C, C++ and Java were **quadratic** on an unterminated block
+comment: 32 KiB of `/*` with no closing `*/` took about 26 seconds
+([#17](https://github.com/go-rouge/rouge/issues/17)). That was a denial of
+service on exactly the untrusted input this library exists to highlight.
 
-This page previously said lexing was linear across the board, with the worst
-doubling ratio at 2.36x. Nothing measured it; when the measurement was written,
-three of thirty-one lexers turned out to be quadratic.
+The cause was not backtracking. The C-family function-signature rule ends in
+`(\{|;)` — Java's in `(\()` — so on an input holding none of those it scans to
+end of input, O(n), from every scan position, O(n) of them.
+
+The fix is a **necessary-condition prefilter**: when no required byte lies at
+or after the scan position, the regex is not run. It can only skip attempts
+that would have failed, so the byte-for-byte golden suite against the gem
+passes unchanged. 32 KiB now takes **12.5 ms**.
+
+Two earlier versions of this page were wrong about this, which is why the
+history stays here. The first claimed lexing was linear across the board with a
+worst ratio of 2.36x — nothing measured it, and when the measurement was
+written three lexers turned out to be quadratic. The second told you not to
+highlight untrusted C, C++ or Java at all; that advice was right for v0.7.0 and
+is obsolete from v0.7.1.
 {{< /callout >}}
 
 ## Links
